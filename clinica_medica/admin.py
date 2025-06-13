@@ -9,4 +9,3 @@ admin.site.register(Paciente)
 admin.site.register(Especialidade)
 admin.site.register(Medicamento)
 admin.site.register(Receita)
-
