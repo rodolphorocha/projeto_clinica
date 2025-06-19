@@ -1,34 +1,58 @@
 from django.db import models
 
-class exame(models.Model):
-    dataExame = models.DateField()
-    horarioExame = models.CharField(max_lenght=45)
+class Exame(models.Model):
+    horario_exame = models.DateTimeField()
 
-class consulta(models.Model):
-    dataConsulta = models.DateField()
-    horarioConsulta = models.DateTimeField()
-    motivoConsulta  = models.CharField(max_length=120)
+    def __str__(self):
+        return self.horario_exame.strftime("%d/%m/%Y %H:%M")
 
-class medico(models.Model):
-    nomeMedico = models.CharField(max_length=120)
-    dataNascimentoM = models.DateField()
-    cpfMedico = models.CharField(max_length=11)
+class Consulta(models.Model):
+    horario_consulta = models.DateTimeField()
+    motivo_consulta = models.CharField(max_length=120)
+    paciente = models.ForeignKey('Paciente', on_delete=models.PROTECT)
+    medico = models.ForeignKey('Medico', on_delete=models.PROTECT, null=True, blank=True)
 
-class paciente(models.Model):
-    cpfPaciente = models.CharField(max_length=11)
-    nomePaciente = models.CharField(max_length=120)
-    dataNascimentoP = models.DateField()
-    telefoneP = models.CharField(max_length=16)
 
-class especialidade(models.Model):
-    nomeEspecialidade = models.CharField(max_length=100)
-    tempoexperiencia = models.DateTimeField()
+    def __str__(self):
+        return f"Consulta {self.paciente.nome_paciente} com {self.medico.nome_medico}"
 
-class medicamento(models.Model):
-    nomeMedicamento = models.CharField(max_length=100)
+class Medico(models.Model):
+    nome_medico = models.CharField(max_length=120)
+    data_nascimento = models.DateField()
+    cpf_medico = models.CharField(max_length=11)
+
+    def __str__(self):
+        return self.nome_medico
+
+class Paciente(models.Model):
+    cpf_paciente = models.CharField(max_length=11)
+    data_nascimento = models.DateField()
+    telefone = models.CharField(max_length=16)
+
+    def __str__(self):
+        return self.nome_paciente
+
+class Especialidade(models.Model):
+    nome_especialidade = models.CharField(max_length=100)
+    anos_experiencia = models.IntegerField()
+
+    def __str__(self):
+        return self.nome_especialidade
+
+class Medicamento(models.Model):
+    nome_medicamento = models.CharField(max_length=100)
     validade = models.DateField()
 
-class receita(models.Model):
+    def __str__(self):
+        return self.nome_medicamento
+
+class Receita(models.Model):
     prescricao = models.CharField(max_length=100)
-    dataEmissao = models.DateField()
+    data_emissao = models.DateField()
     validade = models.DateField()
+    paciente = models.ForeignKey('Paciente', on_delete=models.PROTECT)
+    medico = models.ForeignKey('Medico', on_delete=models.PROTECT)
+    medicamentos = models.ManyToManyField(Medicamento)
+
+    def __str__(self):
+        return f"Receita de {self.paciente.nome_paciente} emitida em {self.data_emissao.strftime('%d/%m/%Y')}"
